@@ -1,0 +1,25 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "lizard"
+version = "0.1.0"
+authors = [
+  { name = "Nils Risse", email = "n.risse@uni-koeln.de" },
+]
+description = "Lizard provides modules for analyzing airborne and satellite data."
+readme = "README.md"
+requires-python = ">=3.10"
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+]
+dependencies = [
+  "pytest >= 7.4.0",
+]
+
+[tool.black]
+line-length = 79
+
