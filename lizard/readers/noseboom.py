@@ -52,8 +52,8 @@ def read_noseboom(flight_id):
     mission, platform, name = flight_id.split("_")
     flight = META[mission][platform][flight_id]
 
-    if mission == "AFLUX":
-        print("WARNING: Using the local file and not intake source.")
+    if mission in ["ACLOUD", "AFLUX"]:
+        print("WARNING: Using file from local server instead of intake.")
 
         if flight_id == "AFLUX_P5_RF02":
             print(f"No data for {flight_id}")

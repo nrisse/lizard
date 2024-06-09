@@ -43,7 +43,7 @@ def read_radiosonde(flight_id=None, time=None):
     files = glob(
         os.path.join(
             os.environ["PATH_SEC"],
-            "data/sea_ice_emissivity/radiosondes/ny_alesund/*.nc",
+            "data/radiosondes/ny_alesund/*.nc",
         )
     )
 
@@ -55,7 +55,7 @@ def read_radiosonde(flight_id=None, time=None):
     ds = xr.open_dataset(
         os.path.join(
             os.environ["PATH_SEC"],
-            f"data/sea_ice_emissivity/radiosondes/ny_alesund/radiosonde_ny_alesund_{date_rs}.nc",
+            f"data/radiosondes/ny_alesund/radiosonde_ny_alesund_{date_rs}.nc",
         )
     )
 
