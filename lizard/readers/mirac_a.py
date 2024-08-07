@@ -13,10 +13,10 @@ from lizard.ac3airlib import day_of_flight
 load_dotenv()
 
 CAT = ac3airborne.get_intake_catalog()
-INTAKE_CACHE = dict(
+PATH_CACHE_INTAKE = dict(
     storage_options={
         "simplecache": dict(
-            cache_storage=os.environ["INTAKE_CACHE"],
+            cache_storage=os.environ["PATH_CACHE_INTAKE"],
             same_names=True,
         )
     }
@@ -48,11 +48,11 @@ def read_mirac_a(flight_id, offline=True, **xarray_kwargs):
         try:
             if mission == "HALO-AC3":
                 ds = CAT[mission][platform]["MiRAC-A"][flight_id](
-                    **INTAKE_CACHE, **CRED, xarray_kwargs=xarray_kwargs
+                    **PATH_CACHE_INTAKE, **CRED, xarray_kwargs=xarray_kwargs
                 ).read()
             else:
                 ds = CAT[mission][platform]["MiRAC-A"][flight_id](
-                    **INTAKE_CACHE, xarray_kwargs=xarray_kwargs
+                    **PATH_CACHE_INTAKE, xarray_kwargs=xarray_kwargs
                 ).read()
 
             return ds

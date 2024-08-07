@@ -7,10 +7,10 @@ import os
 import ac3airborne
 
 CAT = ac3airborne.get_intake_catalog()
-INTAKE_CACHE = dict(
+PATH_CACHE_INTAKE = dict(
     storage_options={
         "simplecache": dict(
-            cache_storage=os.environ["INTAKE_CACHE"],
+            cache_storage=os.environ["PATH_CACHE_INTAKE"],
             same_names=True,
         )
     }
@@ -25,7 +25,7 @@ def read_cloud_top_height(flight_id):
     mission, platform, name = flight_id.split("_")
 
     ds = CAT[mission][platform]["CLOUD_TOP_HEIGHT"][flight_id](
-        **INTAKE_CACHE
+        **PATH_CACHE_INTAKE
     ).read()
 
     return ds

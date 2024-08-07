@@ -30,10 +30,10 @@ load_dotenv()
 
 META = ac3airborne.get_flight_segments()
 CAT = ac3airborne.get_intake_catalog()
-INTAKE_CACHE = dict(
+PATH_CACHE_INTAKE = dict(
     storage_options={
         "simplecache": dict(
-            cache_storage=os.environ["INTAKE_CACHE"],
+            cache_storage=os.environ["PATH_CACHE_INTAKE"],
             same_names=True,
         )
     }
@@ -80,7 +80,7 @@ def read_noseboom(flight_id):
 
     else:
         df = CAT[mission][platform]["NOSE_BOOM"][flight_id](
-            **INTAKE_CACHE
+            **PATH_CACHE_INTAKE
         ).read()
 
     df["t"] = pd.to_datetime(

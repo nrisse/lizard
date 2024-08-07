@@ -10,10 +10,10 @@ import xarray as xr
 
 CAT = ac3airborne.get_intake_catalog()
 META = ac3airborne.get_flight_segments()
-INTAKE_CACHE = dict(
+PATH_CACHE_INTAKE = dict(
     storage_options={
         "simplecache": dict(
-            cache_storage=os.environ["INTAKE_CACHE"],
+            cache_storage=os.environ["PATH_CACHE_INTAKE"],
             same_names=True,
         )
     }

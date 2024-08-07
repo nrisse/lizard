@@ -15,7 +15,7 @@ credentials = dict(user=ac3cloud_username, password=ac3cloud_password)
 # local caching
 kwds = {
     "simplecache": dict(
-        cache_storage=os.environ["INTAKE_CACHE"], same_names=True
+        cache_storage=os.environ["PATH_CACHE_INTAKE"], same_names=True
     )
 }
 

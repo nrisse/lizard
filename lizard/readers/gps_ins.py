@@ -10,10 +10,10 @@ from dotenv import load_dotenv
 load_dotenv()
 
 CAT = ac3airborne.get_intake_catalog()
-INTAKE_CACHE = dict(
+PATH_CACHE_INTAKE = dict(
     storage_options={
         "simplecache": dict(
-            cache_storage=os.environ["INTAKE_CACHE"],
+            cache_storage=os.environ["PATH_CACHE_INTAKE"],
             same_names=True,
         )
     }
@@ -50,7 +50,7 @@ def read_gps_ins(flight_id):
 
     if mission == "HALO-AC3" and platform == "HALO":
         ds = CAT[mission][platform]["GPS_INS"][flight_id](
-            **INTAKE_CACHE, **CRED
+            **PATH_CACHE_INTAKE, **CRED
         ).read()
         ds = ds.rename({"yaw": "heading"})
 
@@ -61,7 +61,7 @@ def read_gps_ins(flight_id):
 
     else:
         ds = CAT[mission][platform]["GPS_INS"][flight_id](
-            **INTAKE_CACHE
+            **PATH_CACHE_INTAKE
         ).read()
 
     return ds

@@ -12,10 +12,10 @@ CAT = intake.open_catalog(
     os.path.join(os.environ["PATH_DAT"], "obs/campaigns/intake/catalog.yaml")
 )
 os.environ["LOCAL_DATA"] = "/data/obs/campaigns/"
-INTAKE_CACHE = dict(
+PATH_CACHE_INTAKE = dict(
     storage_options={
         "simplecache": dict(
-            cache_storage=os.environ["INTAKE_CACHE"],
+            cache_storage=os.environ["PATH_CACHE_INTAKE"],
             same_names=True,
         )
     }
@@ -31,7 +31,7 @@ def read_surftemp(flight_id):
     flight = META[mission][platform][flight_id]
 
     ds = CAT[mission][platform]["ESA_CCI_SST"][flight_id](
-        **INTAKE_CACHE
+        **PATH_CACHE_INTAKE
     ).read()
 
     ds = ds.sel(time=slice(flight["takeoff"], flight["landing"]))

@@ -13,10 +13,10 @@ from lizard.ac3airlib import get_all_flights
 load_dotenv()
 
 CAT = ac3airborne.get_intake_catalog()
-INTAKE_CACHE = dict(
+PATH_CACHE_INTAKE = dict(
     storage_options={
         "simplecache": dict(
-            cache_storage=os.environ["INTAKE_CACHE"],
+            cache_storage=os.environ["PATH_CACHE_INTAKE"],
             same_names=True,
         )
     }
@@ -34,7 +34,7 @@ def read_amsr2_sic_track(flight_id):
 
     mission, platform, name = flight_id.split("_")
 
-    ds = CAT[mission][platform]["AMSR2_SIC"][flight_id](**INTAKE_CACHE).read()
+    ds = CAT[mission][platform]["AMSR2_SIC"][flight_id](**PATH_CACHE_INTAKE).read()
 
     return ds
 

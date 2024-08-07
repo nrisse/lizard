@@ -15,12 +15,6 @@ CAT = ac3airborne.get_intake_catalog()
 
 CRED = dict(user=os.environ["AC3_USER"], password=os.environ["AC3_PASSWORD"])
 
-kwds = {
-    "simplecache": dict(
-        cache_storage=os.environ["INTAKE_CACHE"], same_names=True
-    )
-}
-
 
 def read_hamp(flight_id):
     """
@@ -43,9 +37,9 @@ def read_hamp(flight_id):
 
     mission, platform, name = flight_id.split("_")
 
-    ds = CAT[mission][platform]["HAMP_RADIOMETER"][flight_id](
-        storage_options=kwds, **CRED
-    ).read()
+    date = day_of_flight(flight_id).strftime("%Y%m%d")
+    ds = xr.open_dataset(os.path.join("/data/obs/campaigns/halo-ac3/halo/hamp/",
+                                      f"HALO-AC3_HALO_hamp_radiometer_{date}_{name}.nc"))
 
     ds = ds.drop(["freq", "surface_mask", "interpolate_flag"])
     ds = ds.rename({"uniRadiometer_freq": "frequency", "TB": "tb"})

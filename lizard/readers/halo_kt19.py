@@ -12,7 +12,7 @@ CRED = dict(user=os.environ["AC3_USER"], password=os.environ["AC3_PASSWORD"])
 
 kwds = {
     "simplecache": dict(
-        cache_storage=os.environ["INTAKE_CACHE"], same_names=True
+        cache_storage=os.environ["PATH_CACHE_INTAKE"], same_names=True
     )
 }
 
