@@ -121,7 +121,8 @@ POL_MEANING = {
 
 
 def read_band_pass(
-    instrument, satellite="unspecified", calc_avg=True, add_labels=True
+    instrument, satellite="unspecified", calc_avg=True, add_labels=True,
+    path=None,
 ):
     """
     Read RTTOV coefficient file for a given instrument. The configuration of
@@ -149,10 +150,18 @@ def read_band_pass(
         acronym = ACRONYM[instrument][satellite]
 
     # read file
-    file = os.path.join(
-        os.environ["PATH_SEC"],
-        f"data/sat/mw_overview/filter_files/{acronym}.flt",
-    )
+    if path is None:
+        file = os.path.join(
+            os.environ["PATH_SEC"],
+            f"data/sat/mw_overview/filter_files/{acronym}.flt",
+        )
+    
+    else:
+        file = os.path.join(
+            os.environ["PATH_SEC"],
+            path,
+            f"{acronym}.flt",
+        )
 
     pass_band = {}
     empty_channel = dict(
@@ -270,7 +279,7 @@ def read_band_pass(
     return ds
 
 
-def read_band_pass_combination(sensor1="MiRAC-A", sensor2="MiRAC-P"):
+def read_band_pass_combination(sensor1="MiRAC-A", sensor2="MiRAC-P", **kwargs):
     """
     Creates one band pass dataset for two instruments, e.g. MiRAC-A and
     MiRAC-P, that are flown on the same platform.
@@ -280,8 +289,8 @@ def read_band_pass_combination(sensor1="MiRAC-A", sensor2="MiRAC-P"):
     xr.Dataset of band pass data.
     """
 
-    ds_bp_s1 = read_band_pass(sensor1)
-    ds_bp_s2 = read_band_pass(sensor2)
+    ds_bp_s1 = read_band_pass(sensor1, **kwargs)
+    ds_bp_s2 = read_band_pass(sensor2, **kwargs)
 
     ds_bp_s2["channel"] = ds_bp_s2["channel"] + len(ds_bp_s1["channel"])
 
