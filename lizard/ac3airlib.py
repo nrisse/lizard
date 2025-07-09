@@ -172,13 +172,19 @@ def profiles(flight_id):
     return segments
 
 
-def flights_of_day(day):
+def flights_of_day(day, missions=None, platforms=None):
     """
     Returns list of flights that took place at a certain day.
     """
 
-    for mission in list(META):
-        for platform in list(META[mission]):
+    if missions is None:
+        missions = list(META)
+    
+    if platforms is None:
+        platforms = list(META[mission])
+
+    for mission in missions:
+        for platform in platforms:
             for flight_id in list(META[mission][platform]):
                 flight = META[mission][platform][flight_id]
                 if pd.Timestamp(flight["date"]) == pd.Timestamp(day):

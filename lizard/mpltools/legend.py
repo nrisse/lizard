@@ -20,7 +20,7 @@ def fancy_legend(ax, legend_params):
         frameon=False, handlelength=0, handletextpad=0, **legend_params
     )
 
-    handles = leg.legendHandles
+    handles = leg.legend_handles
     texts = leg.get_texts()
 
     for i in range(len(handles)):
@@ -39,6 +39,8 @@ def fancy_legend(ax, legend_params):
 
         # change color of text to color of handle
         texts[i].set_color(color)
+
+    return leg
 
 
 def add_scale(ax, width, step, proj, annotation_params=dict()):

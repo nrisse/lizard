@@ -9,7 +9,7 @@ import numpy as np
 import xarray as xr
 from scipy.interpolate import interp1d
 
-from lizard.ac3airlib import get_all_flights, meta
+from lizard.ac3airlib import get_all_flights, meta, day_of_flight
 from lizard.readers.gps_ins import read_gps_ins
 
 CAT = ac3airborne.get_intake_catalog()
@@ -33,7 +33,6 @@ def read_all():
     """
 
     flight_ids = get_all_flights("HALO-AC3", "HALO")
-    flight_ids.remove("HALO-AC3_HALO_RF00")
 
     lst_ds = []
     for flight_id in flight_ids:
@@ -60,13 +59,18 @@ def read_mira(flight_id):
     """
 
     mission, platform, name = flight_id.split("_")
-    ds = CAT[mission][platform]["HAMP_RADAR"][flight_id](
-        storage_options=kwds, **CRED
-    ).read()
+    #ds = CAT[mission][platform]["HAMP_RADAR"][flight_id](
+    #    storage_options=kwds, **CRED
+    #).read()
 
-    # set values with -888 to nan
-    variables = ["dBZg", "Zg", "Ze", "dBZe", "LDRg", "RMSg", "VELg", "SNRg"]
-    ds[variables] = ds[variables].where(ds[variables] != -888)
+    date = day_of_flight(flight_id).strftime("%Y%m%d")
+    ds = xr.open_dataset(
+        os.path.join(
+            os.environ["PATH_DAT"],
+            f"obs/campaigns/{mission.lower()}/{platform.lower()}/hamp/unified_v2.7",
+            f"HALO_HALO_AC3_radar_unified_{name}_{date}_v2.7.nc"
+        )
+    )
 
     return ds
 

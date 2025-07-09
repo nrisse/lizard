@@ -16,7 +16,7 @@ CAT = ac3airborne.get_intake_catalog()
 CRED = dict(user=os.environ["AC3_USER"], password=os.environ["AC3_PASSWORD"])
 
 
-def read_hamp(flight_id):
+def read_hamp_uncorrected(flight_id):
     """
     Reads processed HAMP Tbs from ac3airborne intake catalog and performs
     some conversions of the data format. The conversions ensure the same
@@ -38,8 +38,15 @@ def read_hamp(flight_id):
     mission, platform, name = flight_id.split("_")
 
     date = day_of_flight(flight_id).strftime("%Y%m%d")
-    ds = xr.open_dataset(os.path.join("/data/obs/campaigns/halo-ac3/halo/hamp/",
-                                      f"HALO-AC3_HALO_hamp_radiometer_{date}_{name}.nc"))
+    ds = xr.open_dataset(
+        os.path.join(
+            "/data/obs/campaigns/halo-ac3/halo/hamp/uncorrected/",
+            f"HALO-AC3_HALO_hamp_radiometer_{date}_{name}.nc",
+        )
+    )
+
+    # times where any channel is interpolated are removed
+    ds = ds.sel(time=~(ds.interpolate_flag == 1).any("uniRadiometer_freq"))
 
     ds = ds.drop(["freq", "surface_mask", "interpolate_flag"])
     ds = ds.rename({"uniRadiometer_freq": "frequency", "TB": "tb"})
@@ -87,6 +94,63 @@ def read_hamp(flight_id):
     return ds
 
 
+def read_hamp(flight_id):
+    """
+    Reads processed HAMP Tbs from ac3airborne intake catalog and performs
+    some conversions of the data format. The conversions ensure the same
+    variable names as for MiRAC/HATPRO onboard of Polar 5.
+
+    The parameters that are naturally provided are dropped:
+    - surface_mask
+    - interpolate_flag
+
+    Parameters
+    ----------
+    flight_id: ac3airborne flight id
+
+    Returns
+    -------
+    ds: xarray Dataset with HAMP Tbs
+    """
+
+    mission, platform, name = flight_id.split("_")
+
+    date = day_of_flight(flight_id).strftime("%Y%m%d")
+    ds = xr.open_dataset(
+        os.path.join(
+            "/data/obs/campaigns/halo-ac3/halo/hamp/unified_v2.7",
+            f"HALO_HALO_AC3_radiometer_unified_{name}_{date}_v2.7.nc",
+        )
+    )
+
+    # times where any channel is interpolated are removed
+    ds = ds.sel(time=~(ds.interpolate_flag == 1).any("uniRadiometer_freq"))
+
+    ds = ds.rename({"uniRadiometer_freq": "frequency", "TB": "tb"})
+
+    ds["channel"] = ("frequency", np.arange(1, len(ds.frequency) + 1))
+    ds = ds.swap_dims({"frequency": "channel"})
+    ds = ds.reset_coords()
+
+    ds = ds.drop(["freq", "frequency", "surface_mask", "interpolate_flag"])
+
+    # correction for 30 March 2022
+    if flight_id == "HALO-AC3_HALO_RF11":
+        ds_calib = read_calibration(flight_id, version="v2023.04").isel(date=0).reset_coords(drop=True)
+
+        ds_calib["channel"] = ("freq", np.arange(1, 26))
+        ds_calib = ds_calib.swap_dims({"freq": "channel"})
+        ds_calib = ds_calib.reset_coords()
+
+        # undo slope and offset calibration
+        ds["tb"] = (ds["tb"] - ds_calib["offset"]) / ds_calib["slope"]
+
+        # apply bias correction
+        ds["tb"] = ds["tb"] - ds_calib["bias"]
+
+    return ds
+
+
 def read_hamp_all():
     """
     Read all HAMP observations into a single dask array
@@ -110,6 +174,18 @@ def read_hamp_all():
     return ds
 
 
+def read_calibration(flight_id, version="v2024.01"):
+    date_str = day_of_flight(flight_id).strftime("%Y%m%d")
+    ds = xr.open_dataset(
+        os.path.join(
+            "/data/obs/campaigns/halo-ac3/halo/hamp/cssc",
+            version,
+            f"HALO-AC3_HALO_HAMP_TB_offset_correction_{date_str}.nc",
+        )
+    )
+    return ds
+
+
 def apply_calibration(ds, flight_id):
     """
     This adds the calibration offset to HAMP
@@ -117,15 +193,7 @@ def apply_calibration(ds, flight_id):
     corrected_tb = slope * tb + offset
     """
 
-    date_str = day_of_flight(flight_id).strftime("%Y%m%d")
-
-    ds_calib = xr.open_dataset(
-        os.path.join(
-            os.environ["PATH_SEC"],
-            "data/halo-ac3",
-            f"HALO-AC3_HALO_HAMP_TB_offset_correction_{date_str}.nc",
-        )
-    )
+    ds_calib = read_calibration(flight_id)
 
     slope = ds_calib["slope"].sel(freq=ds["frequency"], date=date_str)
     offset = ds_calib["offset"].sel(freq=ds["frequency"], date=date_str)

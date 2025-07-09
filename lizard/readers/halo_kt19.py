@@ -1,27 +1,15 @@
 """
-Read HALO KT-19 from intake.
+Read HALO KT-19.
 """
 
-import os
+import xarray as xr
 
-import ac3airborne
-
-CAT = ac3airborne.get_intake_catalog()
-
-CRED = dict(user=os.environ["AC3_USER"], password=os.environ["AC3_PASSWORD"])
-
-kwds = {
-    "simplecache": dict(
-        cache_storage=os.environ["PATH_CACHE_INTAKE"], same_names=True
-    )
-}
+from lizard.ac3airlib import day_of_flight
 
 
-def read_halo_kt19(flight_id):
+def read_halo_kt19(flight_id, version="v1.0"):
     """
-    Reads HALO KT-19 measurements from intake. The internal temperature
-    variable (temp_KT19) is dropped to avoid confusion with Polar 5 naming
-    convention.
+    Reads HALO VELOX/KT-19 measurements at nadir.
 
     Parameters
     ----------
@@ -33,12 +21,10 @@ def read_halo_kt19(flight_id):
     """
 
     mission, platform, name = flight_id.split("_")
+    date = day_of_flight(flight_id)
 
-    ds = CAT[mission][platform]["KT19"][flight_id](
-        storage_options=kwds, **CRED
-    ).read()
-
-    ds = ds.drop(["temp_KT19", "emis"])
-    ds = ds.rename({"temp_bright": "KT19"})
+    ds = xr.open_dataset(
+        f"/data/obs/campaigns/halo-ac3/halo/kt19/HALO-AC3_HALO_KT19_BT_{date.strftime('%Y%m%d')}_{name}_{version}.nc"
+    )
 
     return ds

@@ -50,7 +50,7 @@ def read_gps_ins(flight_id):
 
     if mission == "HALO-AC3" and platform == "HALO":
         ds = CAT[mission][platform]["GPS_INS"][flight_id](
-            **PATH_CACHE_INTAKE, **CRED
+            **PATH_CACHE_INTAKE
         ).read()
         ds = ds.rename({"yaw": "heading"})
 

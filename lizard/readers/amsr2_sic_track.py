@@ -51,7 +51,6 @@ def read_amsr2_sic_track_all():
     """
 
     flight_ids = get_all_flights("HALO-AC3", "HALO")
-    flight_ids.remove("HALO-AC3_HALO_RF00")
 
     lst_ds = []
     for flight_id in flight_ids:

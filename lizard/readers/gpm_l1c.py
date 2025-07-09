@@ -85,6 +85,7 @@ load_dotenv()
 
 FILENAME_SAT = {
     ("ATMS", "SNPP"): "NPP.ATMS",
+    ("ATMS", "NOAA-21"): "NOAA21.ATMS",
     ("ATMS", "NOAA-20"): "NOAA20.ATMS",
     ("MHS", "NOAA-19"): "NOAA19.MHS",
     ("MHS", "NOAA-18"): "NOAA18.MHS",
@@ -357,7 +358,7 @@ def read_gpm_l1c_swath(
         os.path.join(
             os.environ["PATH_SAT"],
             "gpm_l1c",
-            f"1C.{FILENAME_SAT[(instrument, satellite)]}.XCAL*.{granule}.V07A.HDF5",
+            f"1C.{FILENAME_SAT[(instrument, satellite)]}.XCAL*.{granule}.V07*.HDF5",
         )
     )[0]
 
@@ -797,6 +798,10 @@ def flag_gpml1c(ds, verbose=False):
     -------
     ds: same dataset with flagged Tb set to nan
     """
+
+    # set unrealistic longitude and latitude to nan
+    ds["lat"] = ds.lat.where(ds["lat"] > -900)
+    ds["lon"] = ds.lon.where(ds["lon"] > -900)
 
     # set missing tb to nan (this included all errors)
     ds["tb"] = ds.tb.where(ds["tb"] > 0)
